@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: digidel-resume-parser
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PYTHONPATH
+        value: /app
+      - key: APP_ENV
+        value: production
+    disk:
+      name: uploads
+      mountPath: /app/uploads
+      sizeGB: 1
+    healthCheckPath: /health
