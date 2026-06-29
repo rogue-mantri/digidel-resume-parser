@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: digidel-resume-parser
+    name: digidel-hiring-agent
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile
