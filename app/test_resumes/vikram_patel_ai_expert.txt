@@ -1,0 +1,40 @@
+VIKRAM PATEL
+
+Email: vikram.patel@email.com | Phone: +91 99887 76655 | Location: Hyderabad, Telangana
+GitHub: github.com/vikramcodes
+
+PROFESSIONAL SUMMARY
+Full-stack developer with 3 years of experience. Passionate about AI and building intelligent applications. Self-taught programmer with strong problem-solving skills.
+
+TECHNICAL SKILLS
+Languages: JavaScript, TypeScript, Python, Go
+Frontend: React, Next.js, Vue.js, Tailwind CSS, shadcn/ui
+Backend: Node.js, Express, FastAPI, GraphQL, PostgreSQL, Redis, MongoDB
+AI/ML: OpenAI API, LangChain, LlamaIndex, RAG, Fine-tuning, Embeddings, Vector DBs
+DevOps: Docker, Kubernetes, AWS, CI/CD, Terraform, Nginx
+Tools: Cursor, GitHub Copilot, Windsurf, Figma, Linear, Notion
+
+WORK EXPERIENCE
+
+Full-Stack Developer — AI Startup (2022 – Present)
+• Built AI chat platform with 50K+ users using Next.js and OpenAI
+• Implemented RAG pipeline with custom chunking and re-ranking
+• Reduced AI costs by 60% through caching and model selection
+• Led migration from pages router to App Router in Next.js 14
+• Mentored 2 junior developers
+
+Junior Developer — WebAgency (2021 – 2022)
+• Built 10+ client websites using React and Next.js
+• Implemented e-commerce features with Stripe and Shopify
+• Optimized Core Web Vitals achieving 95+ Lighthouse scores
+
+EDUCATION
+B.Tech in Computer Science — NIT Warangal (2017 – 2021)
+GPA: 9.2/10
+
+PROJECTS
+• AI Code Reviewer: Uses GPT-4 to review PRs and suggest improvements
+• Smart Job Matcher: RAG-based system matching candidates to jobs using vector similarity
+• Real-time Collaboration Tool: WebSocket-based Figma-like tool for remote teams
+
+Salary Expectation: ₹18 LPA | Notice Period: 1 month

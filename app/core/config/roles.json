@@ -1,0 +1,57 @@
+{
+  "roles": {
+    "react_developer": {
+      "title": "React Developer",
+      "department": "Engineering",
+      "level": "Mid-Senior",
+      "required_skills": ["react", "javascript", "typescript"],
+      "bonus_skills": ["next.js", "ai", "llm", "rag", "tailwind", "design systems"],
+      "min_experience": 2,
+      "max_experience": 15,
+      "salary_range": { "min": 8, "max": 18, "currency": "LPA" }
+    },
+    "uiux_designer": {
+      "title": "UI/UX Designer",
+      "department": "Design",
+      "level": "Mid",
+      "required_skills": ["figma", "ui/ux", "design"],
+      "bonus_skills": ["ai", "design tokens", "accessibility", "prototyping", "design systems"],
+      "min_experience": 2,
+      "max_experience": 12,
+      "salary_range": { "min": 6, "max": 12, "currency": "LPA" }
+    },
+    "content_writer": {
+      "title": "Content Writer",
+      "department": "Marketing",
+      "level": "Junior-Mid",
+      "required_skills": ["writing", "content", "seo"],
+      "bonus_skills": ["ai", "prompt engineering", "technical writing", "blogging"],
+      "min_experience": 0,
+      "max_experience": 8,
+      "salary_range": { "min": 4, "max": 8, "currency": "LPA" }
+    },
+    "intern": {
+      "title": "Intern — Generalist",
+      "department": "Engineering",
+      "level": "Intern",
+      "required_skills": ["learning", "curiosity"],
+      "bonus_skills": ["react", "figma", "writing", "ai", "javascript"],
+      "min_experience": 0,
+      "max_experience": 2,
+      "salary_range": { "min": 1.5, "max": 3, "currency": "LPA" }
+    }
+  },
+  "parser_settings": {
+    "min_text_length": 100,
+    "confidence_threshold": 60,
+    "extract_links": true,
+    "extract_salary": true,
+    "extract_notice_period": true
+  },
+  "filter_settings": {
+    "auto_reject_critical": true,
+    "auto_reject_high": true,
+    "flag_yellow": true,
+    "manual_review_threshold": 60
+  }
+}

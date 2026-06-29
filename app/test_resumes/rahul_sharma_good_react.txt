@@ -1,0 +1,40 @@
+RAHUL SHARMA
+
+Email: rahul.sharma@email.com | Phone: +91 98765 43210 | Location: Bangalore, Karnataka
+LinkedIn: linkedin.com/in/rahulsharma | GitHub: github.com/rahulsharma
+
+PROFESSIONAL SUMMARY
+Senior Frontend Developer with 5 years of experience building scalable React applications. Passionate about AI integration and modern web technologies. Experienced with Next.js, TypeScript, and the Vercel AI SDK.
+
+TECHNICAL SKILLS
+Languages: JavaScript, TypeScript, Python, HTML5, CSS3
+Frontend: React, Next.js, Vue.js, Tailwind CSS, Redux, Zustand, React Query
+Backend: Node.js, Express, GraphQL, REST APIs, PostgreSQL, MongoDB
+AI/ML: OpenAI API, LangChain, RAG, Vector Databases (Pinecone, Weaviate), Prompt Engineering
+Tools: Figma, Git, Docker, AWS, Vercel, Cursor, GitHub Copilot
+Design: Design Systems, Design Tokens, Component Libraries, Accessibility (WCAG)
+
+WORK EXPERIENCE
+
+Senior Frontend Developer — TechCorp India (2022 – Present)
+• Led migration from React 17 to React 18 with concurrent features
+• Built AI-powered chatbot using OpenAI API and RAG architecture
+• Implemented design system with 40+ components using Storybook
+• Reduced bundle size by 45% through code splitting and lazy loading
+• Mentored 3 junior developers
+
+Frontend Developer — StartupX (2020 – 2022)
+• Built SaaS dashboard from scratch using React, TypeScript, and Tailwind
+• Integrated Stripe payments and real-time notifications using WebSockets
+• Implemented CI/CD pipeline with GitHub Actions and Docker
+
+EDUCATION
+B.Tech in Computer Science — IIT Delhi (2016 – 2020)
+GPA: 8.5/10
+
+PROJECTS
+• AI Resume Parser: Built an end-to-end RAG system for parsing resumes using LangChain and Pinecone
+• Design Token Generator: Open-source tool for converting Figma variables to CSS custom properties
+• Next.js E-commerce: Full-stack e-commerce with Next.js 14 App Router, Stripe, and Prisma
+
+Salary Expectation: ₹15 LPA | Notice Period: 2 months
