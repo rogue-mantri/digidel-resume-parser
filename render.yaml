@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: digidel-hiring-agent
+    name: digidel-resume-parser
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile
@@ -9,4 +9,20 @@ services:
         value: /app
       - key: APP_ENV
         value: production
+      - key: DATABASE_URL
+        value: placeholder
+      - key: SMTP_HOST
+        value: placeholder
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        value: placeholder
+      - key: SMTP_PASSWORD
+        value: placeholder
+      - key: FROM_EMAIL
+        value: placeholder
+      - key: DEFAULT_TO_EMAIL
+        value: placeholder
     healthCheckPath: /health
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
