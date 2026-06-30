@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY app/ ./app/
+# Copy application code directly to /app (not /app/app/)
+COPY app/ .
 
 # Create data and upload directories
 RUN mkdir -p /app/data/jobs /app/data/resumes /app/data/results /app/uploads
