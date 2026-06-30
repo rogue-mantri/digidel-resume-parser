@@ -1,6 +1,6 @@
 # DIGIDEL Hiring Agent
 
-> **Automated resume parsing, job description matching, and first-pass filtering for the DIGIDEL hiring ecosystem.**
+> **Automated resume parsing, job description matching, first-pass filtering, and live interview scoring for the DIGIDEL hiring ecosystem.**
 >
 > Integrates with **Twenty CRM** and **ERPNext** (Frappe) or runs standalone.
 
@@ -8,7 +8,7 @@
 
 ## What This Agent Does
 
-The DIGIDEL Hiring Agent is a custom-built FastAPI application that acts as an intelligent layer on top of your existing hiring workflow. It connects to your CRM/ERP, fetches job descriptions and uploaded resumes, parses them with NLP heuristics, scores candidates against open roles, and presents a unified dashboard for your HR team.
+The DIGIDEL Hiring Agent is a custom-built FastAPI application that acts as an intelligent layer on top of your existing hiring workflow. It connects to your CRM/ERP, fetches job descriptions and uploaded resumes, parses them with NLP heuristics, scores candidates against open roles, and presents a unified dashboard for your HR team. **NEW:** Now includes a live interview scoring tool with real-time weighted calculations.
 
 ### Key Capabilities
 
@@ -21,6 +21,7 @@ The DIGIDEL Hiring Agent is a custom-built FastAPI application that acts as an i
 | **Standalone Mode** | Works without any CRM — upload job descriptions and resumes manually via the dashboard |
 | **Batch Processing** | Process 10, 50, or 500 resumes in one upload |
 | **Web Dashboard** | Dark-themed HTML UI for non-technical HR users — drag, drop, evaluate |
+| **Live Interview Scoring** | Real-time weighted scoring tool for interviews — score 1-10 per question, auto-calculate recommendations |
 
 ---
 
@@ -35,7 +36,7 @@ The DIGIDEL Hiring Agent is a custom-built FastAPI application that acts as an i
 │             │               │              │                 │
 │ ERPNext API │  Extractor    │ JobMatcher   │  HTML/JS UI     │
 │ Twenty API  │  Parser       │ BatchMatcher │  (no build)     │
-│ Standalone  │  FilterEngine │              │                 │
+│ Standalone  │  FilterEngine │              │  Interview Tool │
 └─────────────┴──────────────┴──────────────┴─────────────────┘
          │              │              │              │
          ▼              ▼              ▼              ▼
@@ -68,6 +69,19 @@ The agent can switch between three modes via environment variables:
 
 Scoring thresholds: **STRONG_MATCH** (85+), **GOOD_MATCH** (70–84), **POTENTIAL_MATCH** (55–69), **NEEDS_REVIEW** (40–54), **NOT_A_MATCH** (<40)
 
+### Interview Scoring Tool (NEW v2.1)
+
+A dedicated live interview scoring interface at `/interview`:
+
+- **Role-based question banks**: React Developer (20 questions), UI/UX Designer (15), Content Writer (8), Intern (8)
+- **Section weights**: Each section has a configurable weight (e.g., AI Integration = 25% for React Dev)
+- **Real-time scoring**: Score 1–10 per question with sliders, auto-calculates section averages and weighted totals
+- **Live recommendation**: Overall score updates instantly — Exceptional (85+), Strong (70+), Adequate (55+), Risky (40+), Reject (<40)
+- **Criteria display**: Good ✓, Great ★, Red Flag ✗ criteria shown per question for consistent evaluation
+- **Follow-up questions**: Embedded follow-ups for each question to help interviewers dig deeper
+- **Session persistence**: Save sessions, export JSON, review past interviews
+- **Progress tracking**: Visual progress bar shows completion percentage
+
 ---
 
 ## Quick Start
@@ -86,7 +100,9 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Open [http://localhost:8000/dashboard](http://localhost:8000/dashboard)
+Open [http://localhost:8000/dashboard](http://localhost:8000/dashboard) for the resume dashboard
+
+Open [http://localhost:8000/interview](http://localhost:8000/interview) for the interview scoring tool
 
 ### 3. Run with Docker
 
@@ -135,7 +151,12 @@ Then start the agent. It will auto-fetch job descriptions and candidates on firs
 | `/jobs/create` | POST | Add a job manually (standalone) |
 | `/stats` | GET | Pipeline statistics |
 | `/results` | GET | Get processed results with filtering |
-| `/dashboard` | GET | Web UI |
+| `/dashboard` | GET | Resume dashboard (HTML UI) |
+| `/interview` | GET | **Interview scoring tool (HTML UI)** |
+| `/interview/roles` | GET | List available interview roles |
+| `/interview/sessions` | POST/GET | Create or list interview sessions |
+| `/interview/sessions/{id}/calculate` | GET | Calculate weighted scores |
+| `/interview/sessions/{id}/complete` | POST | Mark session complete |
 
 ---
 
@@ -146,6 +167,8 @@ Then start the agent. It will auto-fetch job descriptions and candidates on firs
 1. Push code to GitHub (`DIGIDEL-SOLUTIONS/digidel-hiring-agent`)
 2. Go to [dashboard.render.com](https://dashboard.render.com) → New → Blueprint
 3. Connect the repo. Render reads `render.yaml` and auto-deploys.
+
+**Live URL:** [https://digidel-hiring-agent.onrender.com](https://digidel-hiring-agent.onrender.com)
 
 ### Self-Hosted / VPS
 
@@ -199,14 +222,19 @@ If you have a custom API, extend the `ConnectorFactory` in `app/connector/erpnex
 digidel-hiring-agent/
 ├── app/
 │   ├── main.py                    # FastAPI entry point (all endpoints)
+│   ├── routers/
+│   │   └── interview.py           # Interview scoring API routes
 │   ├── static/
-│   │   └── dashboard.html         # Web UI (no build step)
+│   │   ├── dashboard.html         # Resume dashboard UI
+│   │   └── interview.html         # Interview scoring UI (NEW)
 │   ├── core/
 │   │   ├── extractor.py           # PDF/DOCX/TXT/RTF extraction
 │   │   ├── structured_parser.py   # NLP parsing → structured profile
 │   │   ├── filter_engine.py        # First-pass filter rules
 │   │   ├── pipeline.py            # CLI batch pipeline (optional)
-│   │   └── config/roles.json      # Role definitions
+│   │   └── config/
+│   │       ├── roles.json         # Role definitions
+│   │       └── interview_matrices.json  # Interview questions (NEW)
 │   ├── connector/
 │   │   ├── erpnext.py             # ERPNext + Standalone connectors
 │   │   └── twenty.py              # Twenty CRM GraphQL connector
@@ -236,14 +264,17 @@ All core components have been tested with the provided sample resumes:
 
 The matching engine correctly identifies skill matches, missing skills, and AI bonuses. The connector factory auto-falls back to standalone mode if no CRM credentials are configured.
 
+**Interview Scoring Tool:** Tested with all 4 role matrices (React Developer, UI/UX Designer, Content Writer, Intern). Real-time weighted calculation and recommendation generation verified.
+
 ---
 
 ## Next Steps
 
 1. **Add me to your CRM**: Share your ERPNext or Twenty instance URL + API credentials so I can configure the connector and test live data fetching.
-2. **Train your HR team**: Use the Phase 1 interview matrices and scoring templates (already built) alongside this agent.
-3. **Email automation**: Add SMTP/Gmail integration to auto-send shortlisted candidate summaries to hiring managers.
+2. **Train your HR team**: Use the Phase 1 interview matrices and scoring templates alongside this agent. The `/interview` tool replaces manual Excel scorecards.
+3. **Email automation**: Add SMTP/Gmail integration to auto-send shortlisted candidate summaries and interview scores to hiring managers.
 4. **Database persistence**: Swap in-memory storage for PostgreSQL (Supabase) using the D1 schema from Phase 1.
+5. **Fathom AI integration**: Connect to Fathom AI or Google Calendar for transcription → auto-populate interview notes and suggest scores.
 
 ---
 
