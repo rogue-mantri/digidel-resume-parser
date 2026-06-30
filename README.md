@@ -1,14 +1,19 @@
 # DIGIDEL Hiring Agent
 
-> **Automated resume parsing, job description matching, first-pass filtering, and live interview scoring for the DIGIDEL hiring ecosystem.**
+> **Automated resume parsing, job description matching, first-pass filtering, live interview scoring, and email notifications for the DIGIDEL hiring ecosystem.**
 >
-> Integrates with **Twenty CRM** and **ERPNext** (Frappe) or runs standalone.
+> Integrates with **Twenty CRM** and **ERPNext** (Frappe) or runs standalone. Now with **PostgreSQL persistence** and **SMTP email alerts**.
 
 ---
 
 ## What This Agent Does
 
-The DIGIDEL Hiring Agent is a custom-built FastAPI application that acts as an intelligent layer on top of your existing hiring workflow. It connects to your CRM/ERP, fetches job descriptions and uploaded resumes, parses them with NLP heuristics, scores candidates against open roles, and presents a unified dashboard for your HR team. **NEW:** Now includes a live interview scoring tool with real-time weighted calculations.
+The DIGIDEL Hiring Agent is a custom-built FastAPI application that acts as an intelligent layer on top of your existing hiring workflow. It connects to your CRM/ERP, fetches job descriptions and uploaded resumes, parses them with NLP heuristics, scores candidates against open roles, and presents a unified dashboard for your HR team.
+
+**v2.2 adds:**
+- **PostgreSQL persistence** — all interview sessions, scores, resumes, and job descriptions persist to a real database (Supabase/Neon)
+- **SMTP email automation** — auto-send interview summaries and new candidate alerts to hiring managers
+- **Auto table creation** — SQLAlchemy creates tables on app startup (no manual migration needed)
 
 ### Key Capabilities
 
@@ -22,6 +27,8 @@ The DIGIDEL Hiring Agent is a custom-built FastAPI application that acts as an i
 | **Batch Processing** | Process 10, 50, or 500 resumes in one upload |
 | **Web Dashboard** | Dark-themed HTML UI for non-technical HR users — drag, drop, evaluate |
 | **Live Interview Scoring** | Real-time weighted scoring tool for interviews — score 1-10 per question, auto-calculate recommendations |
+| **PostgreSQL Persistence** | All data persists to Supabase/Neon — no data loss on container restarts |
+| **Email Notifications** | Auto-send interview summaries + new candidate alerts via SMTP |
 
 ---
 
@@ -35,52 +42,38 @@ The DIGIDEL Hiring Agent is a custom-built FastAPI application that acts as an i
 │  Connector  │   Core Pipe   │   Matching   │   Dashboard     │
 │             │               │              │                 │
 │ ERPNext API │  Extractor    │ JobMatcher   │  HTML/JS UI     │
-│ Twenty API  │  Parser       │ BatchMatcher │  (no build)     │
-│ Standalone  │  FilterEngine │              │  Interview Tool │
+│ Twenty API  │  Parser       │ BatchMatcher │  Interview Tool │
+│ Standalone  │  FilterEngine │              │  Email Service  │
 └─────────────┴──────────────┴──────────────┴─────────────────┘
          │              │              │              │
          ▼              ▼              ▼              ▼
     [ERPNext/     [PDF/DOCX]    [Job Desc]     [HR Browser]
      Twenty]       [TXT/RTF]    [Candidate]    [Mobile/Desktop]
+                            │
+                            ▼
+                    [PostgreSQL — Supabase/Neon]
 ```
 
-### Connector Layer
+### Database Layer (v2.2 — NEW)
 
-The agent can switch between three modes via environment variables:
+All data now persists to PostgreSQL via SQLAlchemy:
 
-- **`standalone`** (default): Local file storage for jobs and resumes. No external CRM needed.
-- **`erpnext`**: Connects to ERPNext/Frappe via REST API (`token` auth). Reads Job Openings and Job Applicants. Writes evaluation results back.
-- **`twenty`**: Connects to Twenty CRM via GraphQL API. Reads custom job objects and people. Writes evaluation notes.
+| Table | Purpose |
+|-------|---------|
+| `interview_sessions` | Interview sessions with candidate info, status, scores |
+| `interview_scores` | Per-question scores with section weights and notes |
+| `job_descriptions` | Job descriptions created via `/jobs/create` or CRM sync |
+| `processed_resumes` | Full pipeline results from resume uploads |
+| `session_stats` | Aggregated pipeline counters (optional) |
 
-### Core Pipeline
+**Auto-creation:** On startup, `Base.metadata.create_all()` creates all tables if they don't exist. No manual migration needed.
 
-1. **Extractor** (`core/extractor.py`): Multi-format text extraction (PDF → pypdf, DOCX → python-docx, TXT → multi-encoding, RTF → strip control words)
-2. **Structured Parser** (`core/structured_parser.py`): Regex-based NLP extraction of 9 skill categories, education, links, experience, salary, notice period
-3. **Filter Engine** (`core/filter_engine.py`): 5 universal rules + 5 role-specific rules. Decisions: PASS, REJECT, YELLOW_FLAG
+### Email Service (v2.2 — NEW)
 
-### Matching Engine
+Configurable via environment variables. Sends two types of emails:
 
-- **Skills Match** (35%): Required vs. bonus skills overlap
-- **Experience Match** (20%): Within min/max range
-- **Title Relevance** (15%): Current role vs. job title similarity
-- **Education Match** (10%): Degree/field alignment
-- **Keyword Match** (10%): Resume keyword overlap with JD
-- **AI Bonus** (10%): Extra points for AI/LLM/RAG skills
-
-Scoring thresholds: **STRONG_MATCH** (85+), **GOOD_MATCH** (70–84), **POTENTIAL_MATCH** (55–69), **NEEDS_REVIEW** (40–54), **NOT_A_MATCH** (<40)
-
-### Interview Scoring Tool (NEW v2.1)
-
-A dedicated live interview scoring interface at `/interview`:
-
-- **Role-based question banks**: React Developer (20 questions), UI/UX Designer (15), Content Writer (8), Intern (8)
-- **Section weights**: Each section has a configurable weight (e.g., AI Integration = 25% for React Dev)
-- **Real-time scoring**: Score 1–10 per question with sliders, auto-calculates section averages and weighted totals
-- **Live recommendation**: Overall score updates instantly — Exceptional (85+), Strong (70+), Adequate (55+), Risky (40+), Reject (<40)
-- **Criteria display**: Good ✓, Great ★, Red Flag ✗ criteria shown per question for consistent evaluation
-- **Follow-up questions**: Embedded follow-ups for each question to help interviewers dig deeper
-- **Session persistence**: Save sessions, export JSON, review past interviews
-- **Progress tracking**: Visual progress bar shows completion percentage
+1. **Interview Summary** — sent when a session is completed (`/interview/sessions/{id}/complete`). Includes candidate name, overall score, recommendation, and section breakdown.
+2. **New Candidate Alert** — sent automatically when a resume passes the filter (`/pipeline` or `/batch`). Includes candidate name, role, decision, and skills count.
 
 ---
 
@@ -94,7 +87,51 @@ cd digidel-hiring-agent
 pip install -r requirements.txt
 ```
 
-### 2. Run Standalone (No CRM Needed)
+### 2. Set up PostgreSQL (Supabase or Neon)
+
+**Option A: Supabase**
+1. Create a new project at [supabase.com](https://supabase.com) (do NOT use your existing company project)
+2. Go to **Settings → Database** → copy the connection string
+3. Replace `[YOUR-PASSWORD]` with your actual password
+
+```bash
+export DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.PROJECT_ID.supabase.co:5432/postgres"
+```
+
+**Option B: Neon**
+1. Create a new project at [neon.tech](https://neon.tech)
+2. Copy the connection string from the dashboard
+
+```bash
+export DATABASE_URL="postgresql://neondb_owner:YOUR_PASSWORD@ep-xxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+```
+
+**Option C: Local SQLite (dev only)**
+```bash
+export DATABASE_URL="sqlite:///./digidel_hiring.db"
+```
+
+### 3. Set up SMTP for email (optional)
+
+```bash
+export SMTP_HOST="smtp.gmail.com"
+export SMTP_PORT="587"
+export SMTP_USER="your-email@gmail.com"
+export SMTP_PASSWORD="your-app-password"
+export FROM_EMAIL="your-email@gmail.com"
+export DEFAULT_TO_EMAIL="hiring-manager@digidelsolutions.com"
+```
+
+**For Gmail:** Use an [App Password](https://support.google.com/accounts/answer/185833), not your regular password.
+
+**For SendGrid:**
+```bash
+export SMTP_HOST="smtp.sendgrid.net"
+export SMTP_USER="apikey"
+export SMTP_PASSWORD="your-sendgrid-api-key"
+```
+
+### 4. Run Standalone (No CRM Needed)
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -104,13 +141,13 @@ Open [http://localhost:8000/dashboard](http://localhost:8000/dashboard) for the 
 
 Open [http://localhost:8000/interview](http://localhost:8000/interview) for the interview scoring tool
 
-### 3. Run with Docker
+### 5. Run with Docker
 
 ```bash
 docker-compose up --build
 ```
 
-### 4. Connect to Your CRM
+### 6. Connect to Your CRM (optional)
 
 Create a `.env` file:
 
@@ -142,21 +179,22 @@ Then start the agent. It will auto-fetch job descriptions and candidates on firs
 | `/crm/applicants` | GET | Fetch applicants from CRM |
 | `/crm/sync-jobs` | POST | Background sync of job descriptions |
 | `/parse` | POST | Parse a single resume file |
-| `/pipeline` | POST | Full pipeline: parse + filter + match |
+| `/pipeline` | POST | Full pipeline: parse + filter + match + **persist + email** |
 | `/batch` | POST | Process multiple resumes |
 | `/match` | POST | Match a profile against a specific job |
 | `/match/bulk` | POST | Rank candidates against a job |
 | `/jobs` | GET | List cached job descriptions |
 | `/jobs/{id}` | GET | Get a specific job |
 | `/jobs/create` | POST | Add a job manually (standalone) |
-| `/stats` | GET | Pipeline statistics |
-| `/results` | GET | Get processed results with filtering |
+| `/stats` | GET | Pipeline statistics (from DB) |
+| `/results` | GET | Get processed results with filtering (from DB) |
 | `/dashboard` | GET | Resume dashboard (HTML UI) |
-| `/interview` | GET | **Interview scoring tool (HTML UI)** |
+| `/interview` | GET | Interview scoring tool (HTML UI) |
 | `/interview/roles` | GET | List available interview roles |
 | `/interview/sessions` | POST/GET | Create or list interview sessions |
 | `/interview/sessions/{id}/calculate` | GET | Calculate weighted scores |
-| `/interview/sessions/{id}/complete` | POST | Mark session complete |
+| `/interview/sessions/{id}/complete` | POST | Mark session complete + **send email** |
+| `/email/interview-summary` | POST | Send interview summary via email |
 
 ---
 
@@ -165,8 +203,23 @@ Then start the agent. It will auto-fetch job descriptions and candidates on firs
 ### Render (Free Tier)
 
 1. Push code to GitHub (`DIGIDEL-SOLUTIONS/digidel-hiring-agent`)
-2. Go to [dashboard.render.com](https://dashboard.render.com) → New → Blueprint
-3. Connect the repo. Render reads `render.yaml` and auto-deploys.
+2. Go to [dashboard.render.com](https://dashboard.render.com) → Your Service → **Environment**
+3. Add these environment variables:
+
+| Variable | Value | Required? |
+|----------|-------|-----------|
+| `DATABASE_URL` | Your Supabase/Neon connection string | **Yes** |
+| `SMTP_HOST` | e.g., `smtp.gmail.com` | No |
+| `SMTP_PORT` | `587` | No |
+| `SMTP_USER` | Your email address | No |
+| `SMTP_PASSWORD` | App password or API key | No |
+| `FROM_EMAIL` | Sender email | No |
+| `DEFAULT_TO_EMAIL` | Default recipient for alerts | No |
+| `CRM_MODE` | `standalone`, `erpnext`, or `twenty` | Yes |
+| `PORT` | Auto-set by Render | Auto |
+
+4. Go to **Manual Deploy** → **Deploy Latest Commit**
+5. Wait for build to complete. Check logs if it fails.
 
 **Live URL:** [https://digidel-hiring-agent.onrender.com](https://digidel-hiring-agent.onrender.com)
 
@@ -174,45 +227,73 @@ Then start the agent. It will auto-fetch job descriptions and candidates on firs
 
 ```bash
 docker build -t digidel-hiring-agent .
-docker run -d -p 8000:8000 --env-file .env digidel-hiring-agent
+docker run -d -p 8000:8000 \
+  -e DATABASE_URL="your-postgres-url" \
+  -e SMTP_HOST="smtp.gmail.com" \
+  -e SMTP_USER="your-email" \
+  -e SMTP_PASSWORD="your-password" \
+  -e FROM_EMAIL="your-email" \
+  -e DEFAULT_TO_EMAIL="manager@company.com" \
+  digidel-hiring-agent
 ```
-
-### Environment Variables
-
-| Variable | Required For | Description |
-|----------|--------------|-------------|
-| `CRM_MODE` | All | `standalone`, `erpnext`, or `twenty` |
-| `PORT` | All | Server port (Render auto-sets this) |
-| `ERPNEXT_URL` | ERPNext | Your ERPNext base URL |
-| `ERPNEXT_API_KEY` | ERPNext | API Key from ERPNext user settings |
-| `ERPNEXT_API_SECRET` | ERPNext | API Secret from ERPNext user settings |
-| `TWENTY_URL` | Twenty | Your Twenty CRM base URL |
-| `TWENTY_API_KEY` | Twenty | API Key from Twenty settings |
-| `DATA_DIR` | Standalone | Local storage path (default: `./data`) |
 
 ---
 
-## Integrating with Your Existing Stack
+## Database Schema
 
-### ERPNext / Frappe Hiring Module
+The app auto-creates these tables on startup. You can also run the migration SQL manually:
 
-The agent reads from the standard `Job Opening` and `Job Applicant` DocTypes. To write results back:
+```bash
+# Run in psql or Supabase SQL Editor
+psql $DATABASE_URL -f migrations/001_init.sql
+```
 
-1. **Option A**: The agent updates `Job Applicant.status` and `applicant_rating` directly.
-2. **Option B**: Create a custom `Resume Evaluation` DocType and the agent will post evaluation records there.
+### Tables
 
-### Twenty CRM
+```sql
+interview_sessions
+  id, session_id, role_key, role_title, candidate_name, candidate_email,
+  interviewer, job_id, created_at, completed_at, status, final_notes,
+  overall_score, recommendation, recommendation_class, total_questions,
+  answered_questions, progress_percent
 
-The agent expects job openings as custom objects (name: `jobOpenings`). It reads `Person` records as candidates and writes evaluation results as `Notes` on the person.
+interview_scores
+  id, session_id → interview_sessions(id), question_id, section_id,
+  section_title, section_weight, score, notes, created_at, updated_at
 
-### Custom Integration
+job_descriptions
+  id, job_id, job_title, description, required_skills, min_experience,
+  max_experience, department, location, salary_min, salary_max, source, created_at
 
-If you have a custom API, extend the `ConnectorFactory` in `app/connector/erpnext.py` or add a new module in `app/connector/`. The connector just needs to implement:
+processed_resumes
+  id, file_name, format, file_size, text_length, parse_confidence,
+  profile_json, filter_decision, filter_confidence, filter_summary,
+  failed_rules, yellow_flags, match_json, processed_at
 
-- `get_job_openings()` → List[Dict]
-- `get_job_applicants()` → List[Dict]
-- `get_file_attachment(url)` → bytes
-- `health_check()` → Dict
+session_stats
+  id, total_processed, passed, rejected, yellow_flags, updated_at
+```
+
+---
+
+## Email Templates
+
+### Interview Summary Email
+
+Sent when you complete an interview session. Includes:
+- Candidate name, role, interviewer, date
+- Large score display with color-coded recommendation
+- Section-by-section breakdown table
+- Final notes from the interviewer
+- Link back to the interview tool
+
+### New Candidate Alert Email
+
+Sent automatically when a resume passes the filter. Includes:
+- Candidate name, email, role
+- Experience years and skills count
+- Filter decision (PASS/YELLOW_FLAG badge)
+- Link to the dashboard
 
 ---
 
@@ -223,10 +304,11 @@ digidel-hiring-agent/
 ├── app/
 │   ├── main.py                    # FastAPI entry point (all endpoints)
 │   ├── routers/
+│   │   ├── __init__.py
 │   │   └── interview.py           # Interview scoring API routes
 │   ├── static/
 │   │   ├── dashboard.html         # Resume dashboard UI
-│   │   └── interview.html         # Interview scoring UI (NEW)
+│   │   └── interview.html         # Interview scoring UI
 │   ├── core/
 │   │   ├── extractor.py           # PDF/DOCX/TXT/RTF extraction
 │   │   ├── structured_parser.py   # NLP parsing → structured profile
@@ -234,16 +316,25 @@ digidel-hiring-agent/
 │   │   ├── pipeline.py            # CLI batch pipeline (optional)
 │   │   └── config/
 │   │       ├── roles.json         # Role definitions
-│   │       └── interview_matrices.json  # Interview questions (NEW)
+│   │       └── interview_matrices.json  # Interview questions
+│   ├── db/
+│   │   ├── __init__.py
+│   │   ├── database.py            # SQLAlchemy engine + session factory
+│   │   └── models.py              # All ORM models
+│   ├── services/
+│   │   ├── __init__.py
+│   │   └── email_service.py       # SMTP email service with templates
 │   ├── connector/
 │   │   ├── erpnext.py             # ERPNext + Standalone connectors
 │   │   └── twenty.py              # Twenty CRM GraphQL connector
 │   ├── matching/
 │   │   └── job_matcher.py         # Resume-to-JD scoring engine
 │   └── test_resumes/              # 4 sample resumes for testing
+├── migrations/
+│   └── 001_init.sql               # PostgreSQL migration (optional — auto-create on startup)
 ├── Dockerfile                     # Docker image
 ├── docker-compose.yml             # Local dev stack
-├── render.yaml                    # Render.com blueprint
+├── render.yaml                    # Render.com blueprint + env vars
 ├── requirements.txt               # Python dependencies
 ├── README.md                      # This file
 └── DEPLOY.md                      # Deployment-specific guide
@@ -262,9 +353,11 @@ All core components have been tested with the provided sample resumes:
 | Priya Desai | UI/UX Designer | **REJECT** | — | — |
 | Amit Kumar | Generic | **REJECT** | — | — |
 
-The matching engine correctly identifies skill matches, missing skills, and AI bonuses. The connector factory auto-falls back to standalone mode if no CRM credentials are configured.
+**Interview Scoring Tool:** Tested with all 4 role matrices. Real-time weighted calculation and recommendation generation verified.
 
-**Interview Scoring Tool:** Tested with all 4 role matrices (React Developer, UI/UX Designer, Content Writer, Intern). Real-time weighted calculation and recommendation generation verified.
+**Database Persistence:** Verified with PostgreSQL (Supabase) and SQLite. Auto table creation, CRUD operations, and session persistence all tested.
+
+**Email Service:** Tested with Gmail SMTP. Interview summary and candidate alert templates render correctly.
 
 ---
 
@@ -272,9 +365,8 @@ The matching engine correctly identifies skill matches, missing skills, and AI b
 
 1. **Add me to your CRM**: Share your ERPNext or Twenty instance URL + API credentials so I can configure the connector and test live data fetching.
 2. **Train your HR team**: Use the Phase 1 interview matrices and scoring templates alongside this agent. The `/interview` tool replaces manual Excel scorecards.
-3. **Email automation**: Add SMTP/Gmail integration to auto-send shortlisted candidate summaries and interview scores to hiring managers.
-4. **Database persistence**: Swap in-memory storage for PostgreSQL (Supabase) using the D1 schema from Phase 1.
-5. **Fathom AI integration**: Connect to Fathom AI or Google Calendar for transcription → auto-populate interview notes and suggest scores.
+3. **Fathom AI integration**: Connect to Fathom AI or Google Calendar for transcription → auto-populate interview notes and suggest scores.
+4. **Slack/Teams notifications**: Add webhook support for instant team alerts when a candidate passes.
 
 ---
 
