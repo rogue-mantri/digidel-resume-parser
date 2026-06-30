@@ -9,8 +9,4 @@ services:
         value: /app
       - key: APP_ENV
         value: production
-    disk:
-      name: uploads
-      mountPath: /app/uploads
-      sizeGB: 1
     healthCheckPath: /health
