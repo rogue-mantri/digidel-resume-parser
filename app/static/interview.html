@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIGIDEL Interview Scoring Tool</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #0B0C10;
+    color: #E5E5E5;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  .header {
+    background: #1D1D2B;
+    padding: 20px 40px;
+    border-bottom: 2px solid #E85D4A;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header h1 { color: #E85D4A; font-size: 24px; }
+  .header .subtitle { color: #8D99AE; font-size: 14px; }
+  .header .badge {
+    background: #2A9D8F;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 30px 40px; }
+
+  /* Setup Panel */
+  .setup-panel {
+    background: #15161A;
+    border: 1px solid #2A2D35;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+  .setup-panel h2 { color: #E85D4A; margin-bottom: 20px; font-size: 18px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
+  .form-group label { display: block; color: #8D99AE; font-size: 13px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid #2A2D35;
+    background: #1A1D23; color: #E5E5E5; font-size: 14px; outline: none;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: #E85D4A; }
+  .btn {
+    display: inline-block; padding: 12px 28px; border-radius: 8px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .btn-primary { background: #E85D4A; color: white; }
+  .btn-primary:hover { background: #F06B5B; transform: translateY(-1px); }
+  .btn-secondary { background: #2A2D35; color: #E5E5E5; border: 1px solid #3A3D45; }
+  .btn-secondary:hover { background: #3A3D45; }
+  .btn-success { background: #2A9D8F; color: white; }
+  .btn-success:hover { background: #3ABFAF; }
+  .btn-small { padding: 6px 14px; font-size: 12px; }
+
+  /* Progress Bar */
+  .progress-bar { height: 6px; background: #2A2D35; border-radius: 3px; overflow: hidden; margin-bottom: 30px; }
+  .progress-fill { height: 100%; background: #E85D4A; transition: width 0.3s; border-radius: 3px; }
+  .progress-text { color: #8D99AE; font-size: 12px; margin-top: 6px; text-align: right; }
+
+  /* Section */
+  .section { background: #15161A; border: 1px solid #2A2D35; border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+  .section-header {
+    background: #1A1D23; padding: 16px 24px;
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    border-bottom: 1px solid #2A2D35;
+  }
+  .section-header:hover { background: #1E2129; }
+  .section-header h3 { color: #E85D4A; font-size: 16px; display: flex; align-items: center; gap: 10px; }
+  .section-header .section-meta { color: #8D99AE; font-size: 13px; }
+  .section-header .section-score { color: #2A9D8F; font-weight: bold; font-size: 18px; }
+  .section-body { padding: 24px; }
+  .section-body.collapsed { display: none; }
+
+  /* Question Card */
+  .question-card {
+    background: #1A1D23; border: 1px solid #2A2D35; border-radius: 10px;
+    padding: 20px; margin-bottom: 16px;
+  }
+  .question-card:last-child { margin-bottom: 0; }
+  .question-header {
+    display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 12px;
+  }
+  .question-header .q-id { color: #E85D4A; font-weight: bold; font-size: 13px; min-width: 30px; }
+  .question-header .q-text { color: #E5E5E5; font-size: 15px; flex: 1; }
+  .question-header .difficulty {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; white-space: nowrap;
+  }
+  .difficulty-easy { background: #2A9D8F33; color: #2A9D8F; }
+  .difficulty-medium { background: #E9C46A33; color: #E9C46A; }
+  .difficulty-hard { background: #E85D4A33; color: #E85D4A; }
+
+  /* Criteria */
+  .criteria { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 14px 0; }
+  @media (max-width: 768px) { .criteria { grid-template-columns: 1fr; } }
+  .criterion {
+    padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5;
+  }
+  .criterion.good { background: #2A9D8F1A; border-left: 3px solid #2A9D8F; }
+  .criterion.great { background: #2A9D8F22; border-left: 3px solid #2A9D8F; }
+  .criterion.red { background: #E85D4A1A; border-left: 3px solid #E85D4A; }
+  .criterion-label { font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 4px; }
+  .criterion.good .criterion-label { color: #2A9D8F; }
+  .criterion.great .criterion-label { color: #2A9D8F; }
+  .criterion.red .criterion-label { color: #E85D4A; }
+  .criterion-text { color: #B0B5C0; }
+
+  .follow-up { margin-top: 10px; padding: 10px 14px; background: #1D1D2B; border-radius: 8px; font-size: 13px; color: #8D99AE; border-left: 3px solid #E85D4A; }
+
+  /* Score Input */
+  .score-row { display: flex; align-items: center; gap: 20px; margin-top: 16px; flex-wrap: wrap; }
+  .score-slider { flex: 1; min-width: 200px; }
+  .score-slider input[type="range"] {
+    -webkit-appearance: none; width: 100%; height: 8px; border-radius: 4px; background: #2A2D35; outline: none;
+  }
+  .score-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #E85D4A; cursor: pointer; border: 2px solid #E5E5E5;
+  }
+  .score-slider input[type="range"]::-moz-range-thumb {
+    width: 22px; height: 22px; border-radius: 50%; background: #E85D4A; cursor: pointer; border: 2px solid #E5E5E5;
+  }
+  .score-value {
+    min-width: 56px; height: 40px; display: flex; align-items: center; justify-content: center;
+    background: #1D1D2B; border: 2px solid #E85D4A; border-radius: 8px;
+    font-size: 18px; font-weight: bold; color: #E85D4A;
+  }
+  .score-stars { color: #E9C46A; font-size: 14px; letter-spacing: 2px; }
+  .notes-input {
+    width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid #2A2D35;
+    background: #1A1D23; color: #E5E5E5; font-size: 13px; resize: vertical; min-height: 60px; font-family: inherit;
+  }
+  .notes-input:focus { outline: none; border-color: #E85D4A; }
+
+  /* Sidebar Score Panel */
+  .score-panel {
+    position: fixed; right: 20px; top: 90px; width: 260px;
+    background: #15161A; border: 1px solid #2A2D35; border-radius: 12px;
+    padding: 20px; z-index: 100;
+  }
+  .score-panel h3 { color: #E85D4A; font-size: 14px; margin-bottom: 12px; text-transform: uppercase; }
+  .score-panel .overall-score {
+    font-size: 42px; font-weight: bold; color: #E85D4A; text-align: center; margin: 10px 0;
+  }
+  .score-panel .recommendation {
+    text-align: center; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: bold; margin-bottom: 16px;
+  }
+  .rec-exceptional { background: #2A9D8F33; color: #2A9D8F; }
+  .rec-strong { background: #2A9D8F22; color: #2A9D8F; }
+  .rec-adequate { background: #E9C46A33; color: #E9C46A; }
+  .rec-risky { background: #E85D4A33; color: #E85D4A; }
+  .rec-reject { background: #E85D4A22; color: #E85D4A; }
+  .score-panel .section-mini { display: flex; justify-content: space-between; font-size: 12px; margin: 4px 0; }
+  .score-panel .section-mini .name { color: #8D99AE; }
+  .score-panel .section-mini .val { color: #E5E5E5; font-weight: bold; }
+  .score-panel .section-mini .bar { height: 3px; background: #2A2D35; border-radius: 2px; margin-top: 2px; }
+  .score-panel .section-mini .bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+  @media (max-width: 1400px) { .score-panel { position: static; width: 100%; margin-top: 20px; } }
+
+  /* Actions */
+  .actions { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #1D1D2B; border: 1px solid #2A9D8F; border-left: 4px solid #2A9D8F;
+    padding: 14px 20px; border-radius: 8px; color: #E5E5E5;
+    font-size: 14px; z-index: 200;
+    transform: translateY(100px); opacity: 0; transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>DIGIDEL Interview Scoring Tool</h1>
+    <div class="subtitle">Live interview scoring with weighted calculations</div>
+  </div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <span class="badge" id="statusBadge">Ready</span>
+    <a href="/dashboard" class="btn btn-secondary btn-small">← Dashboard</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- SETUP -->
+  <div id="setupPanel" class="setup-panel">
+    <h2>🎤 Start Interview Session</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Role</label>
+        <select id="roleSelect">
+          <option value="">Select role...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Candidate Name</label>
+        <input id="candidateName" placeholder="e.g., Rahul Sharma" />
+      </div>
+      <div class="form-group">
+        <label>Candidate Email</label>
+        <input id="candidateEmail" type="email" placeholder="candidate@email.com" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Interviewer</label>
+        <input id="interviewer" placeholder="Your name" />
+      </div>
+      <div class="form-group">
+        <label>Job ID (optional)</label>
+        <input id="jobId" placeholder="e.g., JD-2026-001" />
+      </div>
+      <div class="form-group" style="display:flex; align-items:flex-end;">
+        <button class="btn btn-primary" onclick="startSession()">Start Interview</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERVIEW -->
+  <div id="interviewPanel" class="hidden">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-text" id="progressText">0 / 0 questions scored</div>
+
+    <div id="sectionsContainer"></div>
+
+    <div class="actions">
+      <button class="btn btn-success" onclick="calculateFinal()">Calculate Final Score</button>
+      <button class="btn btn-secondary" onclick="saveSession()">Save Session</button>
+      <button class="btn btn-secondary" onclick="exportSession()">Export JSON</button>
+      <button class="btn btn-secondary" onclick="resetAll()">New Interview</button>
+    </div>
+  </div>
+
+  <!-- SCORE PANEL -->
+  <div class="score-panel" id="scorePanel" style="display:none;">
+    <h3>Live Score</h3>
+    <div class="overall-score" id="overallScore">--</div>
+    <div class="recommendation" id="recommendation">Start scoring</div>
+    <div id="sectionScores"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── State ───────────────────────────────────────────── */
+let currentRole = null;
+let currentSessionId = null;
+let roleData = null;
+let scores = {};
+let notes = {};
+
+const API_BASE = '';
+
+/* ── Init ────────────────────────────────────────────── */
+async function init() {
+  try {
+    const res = await fetch(API_BASE + '/interview/roles');
+    const data = await res.json();
+    const sel = document.getElementById('roleSelect');
+    for (const [key, info] of Object.entries(data.roles)) {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = `${info.title} (${info.department}) — ${info.total_questions} questions`;
+      sel.appendChild(opt);
+    }
+  } catch (e) {
+    showToast('Failed to load roles: ' + e.message, 'error');
+  }
+}
+
+/* ── Start Session ─────────────────────────────────── */
+async function startSession() {
+  const roleKey = document.getElementById('roleSelect').value;
+  const candidateName = document.getElementById('candidateName').value.trim();
+  const candidateEmail = document.getElementById('candidateEmail').value.trim();
+  const interviewer = document.getElementById('interviewer').value.trim();
+  const jobId = document.getElementById('jobId').value.trim();
+
+  if (!roleKey) { showToast('Please select a role', 'error'); return; }
+  if (!candidateName) { showToast('Please enter candidate name', 'error'); return; }
+
+  try {
+    const fd = new FormData();
+    fd.append('role_key', roleKey);
+    fd.append('candidate_name', candidateName);
+    if (candidateEmail) fd.append('candidate_email', candidateEmail);
+    if (interviewer) fd.append('interviewer', interviewer);
+    if (jobId) fd.append('job_id', jobId);
+
+    const res = await fetch(API_BASE + '/interview/sessions', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!data.success) { showToast(data.error || 'Failed to start session', 'error'); return; }
+
+    currentSessionId = data.session_id;
+    currentRole = roleKey;
+
+    // Load questions
+    const qRes = await fetch(API_BASE + '/interview/roles/' + roleKey + '/flat');
+    const qData = await qRes.json();
+    roleData = qData;
+
+    // Build UI
+    document.getElementById('setupPanel').classList.add('hidden');
+    document.getElementById('interviewPanel').classList.remove('hidden');
+    document.getElementById('scorePanel').style.display = 'block';
+    document.getElementById('statusBadge').textContent = 'In Progress';
+    document.getElementById('statusBadge').style.background = '#E9C46A';
+    document.getElementById('statusBadge').style.color = '#0B0C10';
+
+    buildSections(qData);
+    updateProgress();
+    showToast('Session started! Begin scoring.', 'success');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+/* ── Build Sections ────────────────────────────────── */
+function buildSections(data) {
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = '';
+
+  // Group by section
+  const sections = {};
+  data.questions.forEach(q => {
+    if (!sections[q.section_id]) {
+      sections[q.section_id] = { title: q.section_title, weight: q.section_weight, questions: [] };
+    }
+    sections[q.section_id].questions.push(q);
+  });
+
+  for (const [sid, sec] of Object.entries(sections)) {
+    const secEl = document.createElement('div');
+    secEl.className = 'section';
+    secEl.dataset.section = sid;
+    secEl.innerHTML = `
+      <div class="section-header" onclick="toggleSection(this)">
+        <h3>Section ${sid}: ${sec.title}</h3>
+        <div>
+          <span class="section-meta">Weight: ${sec.weight}% · ${sec.questions.length} questions</span>
+          <span class="section-score" id="sec-score-${sid}">--</span>
+        </div>
+      </div>
+      <div class="section-body" id="sec-body-${sid}">
+        ${sec.questions.map(q => buildQuestionCard(q)).join('')}
+      </div>
+    `;
+    container.appendChild(secEl);
+  }
+}
+
+function buildQuestionCard(q) {
+  const diffClass = q.difficulty.toLowerCase().includes('easy') ? 'difficulty-easy' :
+                    q.difficulty.toLowerCase().includes('hard') ? 'difficulty-hard' : 'difficulty-medium';
+  return `
+    <div class="question-card" data-qid="${q.question_id}">
+      <div class="question-header">
+        <span class="q-id">${q.question_id}</span>
+        <span class="q-text">${escapeHtml(q.question_text)}</span>
+        <span class="difficulty ${diffClass}">${q.difficulty}</span>
+      </div>
+      <div class="criteria">
+        <div class="criterion good">
+          <div class="criterion-label">✓ Good</div>
+          <div class="criterion-text">${escapeHtml(q.good)}</div>
+        </div>
+        <div class="criterion great">
+          <div class="criterion-label">★ Great</div>
+          <div class="criterion-text">${escapeHtml(q.great)}</div>
+        </div>
+        <div class="criterion red">
+          <div class="criterion-label">✗ Red Flag</div>
+          <div class="criterion-text">${escapeHtml(q.red_flag)}</div>
+        </div>
+      </div>
+      ${q.follow_up ? `<div class="follow-up">💡 Follow-up: ${escapeHtml(q.follow_up)}</div>` : ''}
+      <div class="score-row">
+        <div class="score-slider">
+          <input type="range" min="0" max="10" step="0.5" value="0" id="slider-${q.question_id}"
+            oninput="onScoreChange('${q.question_id}', this.value)">
+        </div>
+        <div class="score-value" id="val-${q.question_id}">0</div>
+        <div class="score-stars" id="stars-${q.question_id}"></div>
+      </div>
+      <textarea class="notes-input" placeholder="Notes for this answer..." id="notes-${q.question_id}"
+        onchange="onNoteChange('${q.question_id}', this.value)"></textarea>
+    </div>
+  `;
+}
+
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('collapsed');
+}
+
+function onScoreChange(qid, value) {
+  scores[qid] = parseFloat(value);
+  document.getElementById('val-' + qid).textContent = value;
+  const stars = '★'.repeat(Math.round(value / 2)) + '☆'.repeat(5 - Math.round(value / 2));
+  document.getElementById('stars-' + qid).textContent = stars;
+  updateProgress();
+  calculateLive();
+}
+
+function onNoteChange(qid, value) {
+  notes[qid] = value;
+}
+
+/* ── Live Calculation ──────────────────────────────── */
+function calculateLive() {
+  if (!roleData) return;
+  const questions = roleData.questions;
+  const sections = {};
+
+  questions.forEach(q => {
+    if (!sections[q.section_id]) {
+      sections[q.section_id] = { title: q.section_title, weight: q.section_weight, scores: [] };
+    }
+    const sc = scores[q.question_id];
+    if (sc !== undefined) sections[q.section_id].scores.push(sc);
+  });
+
+  let totalWeighted = 0;
+  let totalWeight = 0;
+  const sectionScores = [];
+
+  for (const [sid, sec] of Object.entries(sections)) {
+    if (sec.scores.length > 0) {
+      const avg = sec.scores.reduce((a, b) => a + b, 0) / sec.scores.length;
+      const weighted = avg * (sec.weight / 100);
+      totalWeighted += weighted;
+      totalWeight += sec.weight;
+      sectionScores.push({ id: sid, title: sec.title, weight: sec.weight, avg: avg, weighted: weighted });
+      document.getElementById('sec-score-' + sid).textContent = avg.toFixed(1);
+    } else {
+      document.getElementById('sec-score-' + sid).textContent = '--';
+    }
+  }
+
+  const overall = totalWeight > 0 ? totalWeighted : 0;
+  document.getElementById('overallScore').textContent = overall.toFixed(1);
+
+  // Recommendation
+  let rec, recClass;
+  if (overall >= 85) { rec = 'EXCEPTIONAL HIRE'; recClass = 'rec-exceptional'; }
+  else if (overall >= 70) { rec = 'STRONG HIRE'; recClass = 'rec-strong'; }
+  else if (overall >= 55) { rec = 'ADEQUATE — CAUTION'; recClass = 'rec-adequate'; }
+  else if (overall >= 40) { rec = 'RISKY — DEEP REVIEW'; recClass = 'rec-risky'; }
+  else { rec = 'REJECT'; recClass = 'rec-reject'; }
+
+  const recEl = document.getElementById('recommendation');
+  recEl.textContent = rec;
+  recEl.className = 'recommendation ' + recClass;
+
+  // Section mini bars
+  const secContainer = document.getElementById('sectionScores');
+  secContainer.innerHTML = sectionScores.map(s => `
+    <div class="section-mini">
+      <span class="name">${s.id} · ${s.title} (${s.weight}%)</span>
+      <span class="val">${s.avg.toFixed(1)}</span>
+    </div>
+    <div class="bar"><div class="bar-fill" style="width:${s.avg * 10}%; background:${getScoreColor(s.avg)}"></div></div>
+  `).join('');
+}
+
+function getScoreColor(score) {
+  if (score >= 8) return '#2A9D8F';
+  if (score >= 6) return '#E9C46A';
+  if (score >= 4) return '#E85D4A';
+  return '#E85D4A';
+}
+
+function updateProgress() {
+  if (!roleData) return;
+  const total = roleData.questions.length;
+  const answered = Object.keys(scores).length;
+  const pct = total > 0 ? (answered / total) * 100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${answered} / ${total} questions scored (${pct.toFixed(0)}%)`;
+}
+
+/* ── Final Calculation ─────────────────────────────── */
+async function calculateFinal() {
+  if (!currentSessionId) return;
+  try {
+    // Submit all scores first
+    const scorePayload = {};
+    for (const [qid, val] of Object.entries(scores)) {
+      scorePayload[qid] = val;
+    }
+    await fetch(API_BASE + '/interview/sessions/' + currentSessionId + '/scores/batch', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(scorePayload)
+    });
+
+    // Submit notes
+    for (const [qid, note] of Object.entries(notes)) {
+      if (note.trim()) {
+        const fd = new FormData();
+        fd.append('question_id', qid);
+        fd.append('notes', note);
+        await fetch(API_BASE + '/interview/sessions/' + currentSessionId + '/scores', { method: 'POST', body: fd });
+      }
+    }
+
+    // Calculate
+    const res = await fetch(API_BASE + '/interview/sessions/' + currentSessionId + '/calculate');
+    const data = await res.json();
+    if (!data.success) { showToast(data.error || 'Calculation failed', 'error'); return; }
+
+    showToast(`Final Score: ${data.overall_score} — ${data.recommendation}`, 'success');
+    document.getElementById('statusBadge').textContent = 'Completed';
+    document.getElementById('statusBadge').style.background = '#2A9D8F';
+    document.getElementById('statusBadge').style.color = 'white';
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+/* ── Save / Export ─────────────────────────────────── */
+async function saveSession() {
+  if (!currentSessionId) return;
+  try {
+    const res = await fetch(API_BASE + '/interview/sessions/' + currentSessionId + '/complete', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Session saved successfully!', 'success');
+    } else {
+      showToast(data.error || 'Save failed', 'error');
+    }
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+async function exportSession() {
+  if (!currentSessionId) return;
+  try {
+    const res = await fetch(API_BASE + '/interview/sessions/' + currentSessionId + '/export?format=json');
+    const data = await res.json();
+    if (!data.success) { showToast(data.error || 'Export failed', 'error'); return; }
+
+    const blob = new Blob([JSON.stringify(data.session, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `interview_${currentSessionId}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Exported to JSON!', 'success');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+function resetAll() {
+  scores = {};
+  notes = {};
+  currentSessionId = null;
+  currentRole = null;
+  roleData = null;
+  document.getElementById('setupPanel').classList.remove('hidden');
+  document.getElementById('interviewPanel').classList.add('hidden');
+  document.getElementById('scorePanel').style.display = 'none';
+  document.getElementById('statusBadge').textContent = 'Ready';
+  document.getElementById('statusBadge').style.background = '#2A9D8F';
+  document.getElementById('statusBadge').style.color = 'white';
+  document.getElementById('sectionsContainer').innerHTML = '';
+  document.getElementById('overallScore').textContent = '--';
+  document.getElementById('recommendation').textContent = 'Start scoring';
+  document.getElementById('recommendation').className = 'recommendation';
+  document.getElementById('sectionScores').innerHTML = '';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('progressText').textContent = '0 / 0 questions scored';
+}
+
+/* ── Utilities ─────────────────────────────────────── */
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.borderLeftColor = type === 'error' ? '#E85D4A' : '#2A9D8F';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+/* ── Boot ──────────────────────────────────────────── */
+init();
+</script>
+
+</body>
+</html>

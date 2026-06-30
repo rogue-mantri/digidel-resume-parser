@@ -1,0 +1,686 @@
+{
+  "roles": {
+    "react_developer": {
+      "title": "React Developer",
+      "department": "Engineering",
+      "level": "Mid-Senior",
+      "scoring": {
+        "exceptional": 85,
+        "strong": 70,
+        "adequate": 55,
+        "risky": 40,
+        "reject": 0
+      },
+      "sections": [
+        {
+          "id": "A",
+          "title": "React Fundamentals",
+          "weight": 20,
+          "questions": [
+            {
+              "id": "A1",
+              "text": "When does a React component re-render? List all triggers.",
+              "difficulty": "Easy",
+              "good": "Mentions state changes, prop changes, and parent re-renders. Understands the basic concept.",
+              "great": "Also mentions context changes, force updates, and incorrectly mutating state. Mentions React 18's automatic batching.",
+              "red_flag": "'When I click a button.' or 'When the page loads.' Shows no understanding of the rendering lifecycle.",
+              "follow_up": "What happens if you mutate state directly instead of using setState?"
+            },
+            {
+              "id": "A2",
+              "text": "Explain the difference between useEffect and useLayoutEffect. When would you use each?",
+              "difficulty": "Easy–Medium",
+              "good": "Knows useEffect runs after paint, useLayoutEffect runs before paint. Uses useLayoutEffect for DOM measurements.",
+              "great": "Discusses performance implications, mentions useInsertionEffect (React 18), and gives specific examples (animations, scroll position, avoiding visual flicker).",
+              "red_flag": "'They're the same thing.' or 'I always use useEffect.' Doesn't understand the visual/performance distinction.",
+              "follow_up": "Have you ever had a bug where switching from useEffect to useLayoutEffect fixed it?"
+            },
+            {
+              "id": "A3",
+              "text": "When should you use useMemo and useCallback? Give a specific example where NOT using them causes a real problem.",
+              "difficulty": "Medium",
+              "good": "Understands they memoize values and functions. Mentions avoiding unnecessary re-renders of child components.",
+              "great": "Discusses the cost of memoization vs. the cost of re-rendering. Mentions dependency array correctness. Gives a concrete example. Mentions React Compiler (React 19).",
+              "red_flag": "'I use them everywhere to make my app faster.' (Premature optimization.) Or 'I don't know what those are.'",
+              "follow_up": "What happens if you get the dependency array wrong?"
+            },
+            {
+              "id": "A4",
+              "text": "What are React Server Components (RSC), and how do they change the way you build React apps?",
+              "difficulty": "Medium–Hard",
+              "good": "Knows RSC runs on the server, reduces bundle size, and can access server resources directly. Mentions Next.js App Router.",
+              "great": "Explains the mental model shift: Server vs. Client boundaries, use client directive, when to use RSC vs. Client Components, data fetching patterns, and the 'zero JS' bundle benefit. Discusses trade-offs.",
+              "red_flag": "'It's just server-side rendering.' or 'I haven't used it yet.' (For a senior role, this is concerning.)",
+              "follow_up": "In a Next.js App Router project, how do you decide whether a component should be a Server Component or a Client Component?"
+            },
+            {
+              "id": "A5",
+              "text": "Describe a complex state management scenario you've handled. How did you structure it?",
+              "difficulty": "Medium",
+              "good": "Describes a multi-component state problem. Used Context API, Redux, or Zustand. Explains the choice.",
+              "great": "Discusses state normalization, derived state, when to lift state vs. keep local. Mentions specific libraries (Zustand, Jotai, Redux Toolkit) and why they chose one. Talks about performance.",
+              "red_flag": "'I put everything in Redux.' or 'I use useState for everything.' (No architectural thinking.)",
+              "follow_up": "What would you do differently if you had to scale that state to 50 components?"
+            },
+            {
+              "id": "A6",
+              "text": "How do you handle composition in React? What's the difference between children and render props?",
+              "difficulty": "Medium",
+              "good": "Understands children as a prop for nested content. Knows render props pattern for inversion of control.",
+              "great": "Discusses compound components, slots, and when to use each pattern. Mentions modern alternatives (React Context + hooks, headless UI patterns). Understands composition over inheritance.",
+              "red_flag": "'I don't use composition.' or only understands children as a basic prop.",
+              "follow_up": "When would you choose a render prop over a compound component?"
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "title": "TypeScript & Modern JavaScript",
+          "weight": 15,
+          "questions": [
+            {
+              "id": "B1",
+              "text": "Explain generics in TypeScript. Give a real example where you used them to make your code more reusable.",
+              "difficulty": "Medium",
+              "good": "Defines generics as type variables. Gives an example (e.g., a typed API client, a generic component).",
+              "great": "Discusses generic constraints (extends), default types, mapped types, and conditional types. Gives a production example (e.g., type-safe form builder, generic table component).",
+              "red_flag": "'I don't use generics.' or 'Generics are too complicated.' (TypeScript without generics is just JavaScript with extra steps.)",
+              "follow_up": "What's the difference between T extends string and T = string?"
+            },
+            {
+              "id": "B2",
+              "text": "How do you ensure type safety across the frontend-backend boundary? Describe your approach to API contracts.",
+              "difficulty": "Medium–Hard",
+              "good": "Mentions shared types, OpenAPI/Swagger, or GraphQL schemas. Uses TypeScript interfaces for API responses.",
+              "great": "Describes a full-stack type system: auto-generated types from backend (tRPC, GraphQL codegen, OpenAPI generator), runtime validation (Zod, Valibot), and end-to-end type safety.",
+              "red_flag": "'I just use any for API responses.' or 'I trust the backend to send the right data.'",
+              "follow_up": "What happens when the backend changes a field name and you have any everywhere?"
+            },
+            {
+              "id": "B3",
+              "text": "What are utility types in TypeScript, and which ones do you use most often?",
+              "difficulty": "Easy–Medium",
+              "good": "Mentions Partial, Required, Pick, Omit, Record. Knows what they do.",
+              "great": "Discusses advanced utility types: ReturnType, Parameters, Awaited, NonNullable. Explains when to use each. Mentions custom utility types they've built.",
+              "red_flag": "Only knows Partial and Pick. Or 'I don't use utility types.'",
+              "follow_up": "How would you create a type that makes all properties of an interface optional except one?"
+            }
+          ]
+        },
+        {
+          "id": "C",
+          "title": "AI Integration & LLM",
+          "weight": 25,
+          "questions": [
+            {
+              "id": "C1",
+              "text": "How would you integrate a Large Language Model (LLM) into a React application? Walk me through the architecture.",
+              "difficulty": "Medium–Hard",
+              "good": "Mentions API calls to OpenAI/Anthropic. Uses fetch or a library. Handles loading states and errors.",
+              "great": "Discusses streaming responses (SSE/WebSocket), state management for conversation history, error handling, optimistic UI, and the Vercel AI SDK. Mentions client-side vs. server-side AI architecture.",
+              "red_flag": "'I would just call the API directly from the frontend.' (No architecture thinking, no security awareness.)",
+              "follow_up": "What are the security risks of calling the LLM API directly from the frontend?"
+            },
+            {
+              "id": "C2",
+              "text": "Your AI feature processes 10,000 user requests/day. Each request sends a 2,000-token prompt to GPT-4. Your monthly budget is $500. How do you stay within budget?",
+              "difficulty": "Hard",
+              "good": "Mentions caching, prompt optimization, using cheaper models, and rate limiting.",
+              "great": "Calculates exact costs: 10,000 × 2,000 tokens × $0.03/1K tokens ≈ $600/day. Explains the budget is impossible without optimization. Proposes: reducing prompt size, using GPT-3.5 for 80% of requests, caching, hybrid approach.",
+              "red_flag": "'I'll just use the cheapest model.' (No understanding of token economics, quality trade-offs, or optimization strategies.)",
+              "follow_up": "What is a token, and how do you count them?"
+            },
+            {
+              "id": "C3",
+              "text": "What is a 'context window,' and why does it matter for AI applications? How do you handle conversations that exceed it?",
+              "difficulty": "Medium–Hard",
+              "good": "Explains the context window as the maximum tokens a model can process. Mentions truncation as a risk.",
+              "great": "Discusses different models' context limits (4K, 8K, 128K, 2M). Explains the trade-off between context length and cost. Describes strategies: chunking, summarization, RAG, sliding window.",
+              "red_flag": "'It's how long the AI can talk.' or 'I just send the whole conversation.' (No technical understanding of the constraint.)",
+              "follow_up": "If a user has a 50-message chat history, how do you decide which messages to include in the next prompt?"
+            },
+            {
+              "id": "C4",
+              "text": "Walk me through building a RAG (Retrieval-Augmented Generation) system from scratch. What are the key components?",
+              "difficulty": "Hard",
+              "good": "Mentions: document ingestion → chunking → embedding → vector database → retrieval → context injection → generation.",
+              "great": "Discusses chunking strategies (fixed-size, semantic, recursive), embedding models, vector databases, retrieval strategies (similarity search, hybrid search, re-ranking), context window management, and evaluation metrics.",
+              "red_flag": "'You just upload documents to ChatGPT.' or 'RAG is just giving the AI a PDF.' (Completely misunderstands RAG architecture.)",
+              "follow_up": "What are the limitations of RAG, and when would you NOT use it?"
+            },
+            {
+              "id": "C5",
+              "text": "How do you use AI-powered IDEs (Cursor, Windsurf, GitHub Copilot) differently from a regular IDE like VS Code?",
+              "difficulty": "Medium",
+              "good": "Mentions AI-powered autocomplete, inline editing, and chat interface.",
+              "great": "Discusses the paradigm shift: context-aware generation (whole files, not just lines), AI-driven refactoring, test generation, documentation generation, custom rules (.cursorrules), composer mode for multi-file changes.",
+              "red_flag": "'It's just VS Code with AI.' or 'I don't use AI tools.' (Misses the productivity revolution or is resistant to it.)",
+              "follow_up": "Describe a custom AI workflow you've built that improved your productivity."
+            }
+          ]
+        },
+        {
+          "id": "D",
+          "title": "Design Systems & UI",
+          "weight": 15,
+          "questions": [
+            {
+              "id": "D1",
+              "text": "What are design tokens, and why are they important? How would you set them up for a product with multiple themes?",
+              "difficulty": "Medium",
+              "good": "Defines tokens as variables for colors, spacing, typography. Mentions consistency and theming.",
+              "great": "Discusses token hierarchy (primitive → semantic → component), theming (dark mode, brand variants), cross-platform usage (CSS variables, Figma variables, Tailwind config), and developer handoff automation.",
+              "red_flag": "'I don't know what that means.' or 'I just use hex codes.' (No design system awareness.)",
+              "follow_up": "What's the difference between a primitive token and a semantic token?"
+            },
+            {
+              "id": "D2",
+              "text": "How do you create a component library from scratch? What makes a component 'good'?",
+              "difficulty": "Medium–Hard",
+              "good": "Mentions reusability, variants, states, and documentation. Uses a library like Storybook.",
+              "great": "Discusses accessibility (ARIA, keyboard navigation), API design (props, composition), testing (unit, visual regression), versioning (changesets), and the boundary between system components and product components.",
+              "red_flag": "'I just copy-paste from my old designs.' or 'Component libraries are overkill.'",
+              "follow_up": "What do you do when a component needs to be slightly different in two different places?"
+            },
+            {
+              "id": "D3",
+              "text": "How do you implement dark mode in a React application? What are the challenges?",
+              "difficulty": "Medium",
+              "good": "Uses CSS variables or a theme provider. Toggles a class or data attribute.",
+              "great": "Discusses system preference detection (prefers-color-scheme), persistent user preference, smooth transitions (no flash), image handling, and the CSS variable architecture. Mentions tools like next-themes or Tailwind's dark mode.",
+              "red_flag": "'I just swap the CSS file.' or 'I haven't implemented dark mode.' (For a modern developer, this is a basic requirement.)",
+              "follow_up": "How do you prevent a flash of the wrong theme on page load?"
+            }
+          ]
+        },
+        {
+          "id": "E",
+          "title": "Backend & Full-Stack",
+          "weight": 10,
+          "questions": [
+            {
+              "id": "E1",
+              "text": "How do you design a REST API endpoint for a complex feature? What considerations go into the design?",
+              "difficulty": "Medium",
+              "good": "Mentions HTTP methods, status codes, request/response structure, and validation.",
+              "great": "Discusses pagination, filtering, sorting, rate limiting, idempotency, versioning, error handling, and caching. Mentions OpenAPI specs and type-safe clients.",
+              "red_flag": "'I just make endpoints that return JSON.' or 'I let the backend team decide.' (No API design thinking.)",
+              "follow_up": "How do you handle an API endpoint that returns 10,000 records?"
+            },
+            {
+              "id": "E2",
+              "text": "What database would you choose for a real-time chat application, and why?",
+              "difficulty": "Medium–Hard",
+              "good": "Mentions PostgreSQL, MongoDB, or Firebase. Gives a reason (relations, scalability, real-time).",
+              "great": "Discusses the full stack: PostgreSQL for persistence, Redis for pub/sub, WebSocket for real-time, and message queues for reliability. Considers trade-offs: consistency vs. availability, horizontal scaling.",
+              "red_flag": "'I always use MongoDB because it's easy.' or 'I don't know, I just use whatever the backend team gives me.'",
+              "follow_up": "How do you handle messages that fail to deliver?"
+            }
+          ]
+        },
+        {
+          "id": "F",
+          "title": "Problem Solving & Architecture",
+          "weight": 10,
+          "questions": [
+            {
+              "id": "F1",
+              "text": "A React app you built is running slowly. Walk me through your debugging process.",
+              "difficulty": "Medium–Hard",
+              "good": "Mentions React DevTools Profiler, Chrome DevTools, checking for unnecessary re-renders, and memoization.",
+              "great": "Describes a systematic process: reproduce → measure (Profiler, Lighthouse) → identify bottleneck (re-renders, bundle size, network) → fix → verify. Mentions specific tools (why-did-you-render, bundle analyzer).",
+              "red_flag": "'I just add useMemo everywhere.' or 'I don't know how to debug performance.'",
+              "follow_up": "What's the most impactful performance fix you've made?"
+            },
+            {
+              "id": "F2",
+              "text": "You're asked to add a feature that will take 2 weeks, but the founder wants it in 3 days. How do you handle this?",
+              "difficulty": "Medium",
+              "good": "Pushes back respectfully, explains the trade-offs, proposes a phased approach (MVP first).",
+              "great": "Frames the conversation around business value and risk. Proposes a 'time-boxed' MVP that delivers 80% of the value in 3 days. Discusses technical debt and documents the compromise.",
+              "red_flag": "'I'll just work harder.' or 'I can't do it, sorry.' (Either burns out or gives up without trying to find a solution.)",
+              "follow_up": "What would you say if the founder insists on the full feature in 3 days?"
+            }
+          ]
+        },
+        {
+          "id": "G",
+          "title": "Cultural Fit & Mindset",
+          "weight": 5,
+          "questions": [
+            {
+              "id": "G1",
+              "text": "What do you want to learn in the next year? How does that align with Digidelsolutions's direction?",
+              "difficulty": "Easy",
+              "good": "Specific skill or area (e.g., 'AI architecture', 'design systems'). Shows some awareness of the company.",
+              "great": "Connects personal growth to company goals. Has a self-directed learning plan. Shows curiosity about AI and its application to real products.",
+              "red_flag": "'I don't know.' or 'Nothing, I'm already good.' or a generic answer unrelated to the company.",
+              "follow_up": "How do you plan to learn that?"
+            },
+            {
+              "id": "G2",
+              "text": "Describe a time you owned a project end-to-end. What was the hardest part, and how did you handle it?",
+              "difficulty": "Medium",
+              "good": "Describes a project they led from start to finish. Mentions a specific challenge and how they overcame it.",
+              "great": "Shows ownership mentality: they identified the problem, proposed the solution, got buy-in, executed, and measured results. The 'hardest part' was non-technical.",
+              "red_flag": "'I haven't owned a project end-to-end.' or 'The hardest part was the coding.' (Shows no ownership or growth mindset.)",
+              "follow_up": "What would you do differently if you had to do it again?"
+            }
+          ]
+        }
+      ]
+    },
+    "uiux_designer": {
+      "title": "UI/UX Designer",
+      "department": "Design",
+      "level": "Mid",
+      "scoring": {
+        "exceptional": 85,
+        "strong": 70,
+        "adequate": 55,
+        "risky": 40,
+        "reject": 0
+      },
+      "sections": [
+        {
+          "id": "A",
+          "title": "Design Principles & Theory",
+          "weight": 20,
+          "questions": [
+            {
+              "id": "A1",
+              "text": "Explain the difference between UI and UX. Give an example where great UI failed because of bad UX.",
+              "difficulty": "Easy",
+              "good": "Clear distinction: UI is visual, UX is the overall experience. Example is relevant (e.g., a beautiful app with confusing navigation).",
+              "great": "References specific case studies (e.g., Snapchat's 2018 redesign, Windows 8). Discusses business impact (drop in user engagement, increase in support tickets).",
+              "red_flag": "Thinks UI and UX are the same thing. Cannot give a real example. Says 'UI is how it looks, UX is how it works' without elaboration.",
+              "follow_up": "How would you fix the bad UX in your example?"
+            },
+            {
+              "id": "A2",
+              "text": "How do you approach accessibility in your designs? What standards do you follow?",
+              "difficulty": "Easy–Medium",
+              "good": "Mentions WCAG, color contrast (4.5:1), font sizes, screen reader awareness, keyboard navigation.",
+              "great": "Discusses inclusive design, testing with real users, accessibility-first workflow, focus management, and semantic HTML. Mentions tools like axe, WAVE, or Lighthouse.",
+              "red_flag": "'I don't think about it much.' or 'My designs look good, so it's accessible.'",
+              "follow_up": "What contrast ratio do you aim for body text? What about large text?"
+            },
+            {
+              "id": "A3",
+              "text": "Walk me through your design process for a new feature from start to finish.",
+              "difficulty": "Medium",
+              "good": "Mentions research → wireframes → mockups → feedback → handoff. Shows a linear process.",
+              "great": "Includes user research (interviews, surveys, analytics), data analysis, competitive analysis, A/B testing, developer collaboration, and post-launch metrics. Mentions iterative design and when to pivot.",
+              "red_flag": "Jumps straight to 'I open Figma and start designing.' No research phase. No testing.",
+              "follow_up": "How do you decide which design to test first?"
+            },
+            {
+              "id": "A4",
+              "text": "How do you use hierarchy, color, and typography to guide user attention?",
+              "difficulty": "Medium",
+              "good": "Mentions size, contrast, white space, and font weight. Understands visual hierarchy basics.",
+              "great": "Discusses Gestalt principles (proximity, similarity, continuity), F-pattern and Z-pattern reading, color psychology, and typographic scale (modular scale). Gives specific examples of how they used these to solve a real problem.",
+              "red_flag": "'I just make it look good.' or 'I follow trends.' (No design theory foundation.)",
+              "follow_up": "Show me a design where you intentionally broke a hierarchy rule — why?"
+            },
+            {
+              "id": "A5",
+              "text": "What is your approach to mobile-responsive design? How do you ensure consistency across devices?",
+              "difficulty": "Medium",
+              "good": "Mentions breakpoints, flexible grids, and media queries. Uses a mobile-first approach.",
+              "great": "Discusses content strategy for mobile (what to show/hide), touch targets, performance considerations, and testing on real devices. Mentions design systems that support responsive patterns.",
+              "red_flag": "'I just shrink the desktop design.' or 'Responsive design is the developer's job.'",
+              "follow_up": "How do you handle a navigation menu that has 8 items on desktop but only fits 3 on mobile?"
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "title": "Tool Proficiency",
+          "weight": 20,
+          "questions": [
+            {
+              "id": "B1",
+              "text": "What is your Figma workflow? Walk me through how you structure a design file for a complex project.",
+              "difficulty": "Easy–Medium",
+              "good": "Uses pages for organization, frames for screens, components for reusable elements, and auto-layout.",
+              "great": "Discusses design systems in Figma (variables, component properties, variants), developer handoff (Dev Mode, annotations), and collaboration (comments, branching). Mentions plugins and automation.",
+              "red_flag": "'I just design on one page.' or 'I don't use components.' (No workflow discipline.)",
+              "follow_up": "How do you handle design handoff to developers?"
+            },
+            {
+              "id": "B2",
+              "text": "How do you use AI tools (Midjourney, DALL-E, Adobe Firefly) in your design process?",
+              "difficulty": "Medium",
+              "good": "Mentions using AI for ideation, mood boards, or generating placeholder images. Understands the basics.",
+              "great": "Describes a workflow where AI accelerates exploration: generating variations, A/B testing concepts, creating custom illustrations, and iterating faster. Discusses ethical considerations and when NOT to use AI.",
+              "red_flag": "'I don't use AI tools.' or 'AI will replace designers, so I avoid it.' (Misses the productivity gain or is resistant to change.)",
+              "follow_up": "Show me a design where AI helped you explore 10x more concepts than you could manually."
+            }
+          ]
+        },
+        {
+          "id": "C",
+          "title": "User Research & Strategy",
+          "weight": 25,
+          "questions": [
+            {
+              "id": "C1",
+              "text": "Describe a time you used user research to change a design decision. What was the research, and what did you change?",
+              "difficulty": "Medium",
+              "good": "Mentions a specific research method (interviews, surveys, usability testing). Describes a change they made based on findings.",
+              "great": "Shows a full research cycle: hypothesis → method → findings → design change → validation. Discusses sample size, bias, and how they communicated findings to stakeholders.",
+              "red_flag": "'I don't do user research.' or 'I just design what I think is best.' (No user-centered thinking.)",
+              "follow_up": "How did you convince the team to make the change?"
+            },
+            {
+              "id": "C2",
+              "text": "How do you measure the success of a design after launch? What metrics do you track?",
+              "difficulty": "Medium",
+              "good": "Mentions usability metrics (task completion rate, error rate), engagement metrics (time on page, clicks), and qualitative feedback.",
+              "great": "Connects design metrics to business outcomes (conversion rate, churn, NPS). Describes a measurement framework they use. Discusses how they set baselines and targets.",
+              "red_flag": "'I don't measure success.' or 'I just look at whether people like it.' (No data-driven thinking.)",
+              "follow_up": "What would you do if the metrics show your design performed worse than the old one?"
+            }
+          ]
+        },
+        {
+          "id": "D",
+          "title": "Design Systems & Collaboration",
+          "weight": 20,
+          "questions": [
+            {
+              "id": "D1",
+              "text": "How do you build and maintain a design system? What makes a design system successful?",
+              "difficulty": "Medium–Hard",
+              "good": "Mentions components, styles, documentation, and governance. Uses a tool like Figma or Storybook.",
+              "great": "Discusses adoption strategies (incentives, not enforcement), versioning, contribution models, and scaling. Mentions token-based architecture and cross-platform consistency. Describes a system they built or maintained.",
+              "red_flag": "'Design systems are too restrictive.' or 'I just create components when needed.' (No systematic thinking.)",
+              "follow_up": "How do you get developers to actually use the design system?"
+            },
+            {
+              "id": "D2",
+              "text": "How do you handle feedback from stakeholders who don't understand design?",
+              "difficulty": "Medium",
+              "good": "Listens actively, asks clarifying questions, and explains design decisions in business terms.",
+              "great": "Uses framing techniques: 'This design increases conversion by X% because...' or 'User testing showed that...' Builds trust through data and transparency. Knows when to push back and when to compromise.",
+              "red_flag": "'I just do what they say.' or 'They don't understand design, so I ignore them.' (Either a doormat or arrogant.)",
+              "follow_up": "What do you do when a founder insists on a design you know is bad?"
+            }
+          ]
+        },
+        {
+          "id": "E",
+          "title": "Cultural Fit & Mindset",
+          "weight": 15,
+          "questions": [
+            {
+              "id": "E1",
+              "text": "What design trend or technology are you most excited about right now? Why?",
+              "difficulty": "Easy",
+              "good": "Mentions a specific trend (e.g., AI-generated design, spatial design, micro-interactions). Shows genuine interest.",
+              "great": "Connects the trend to real user problems or business value. Has experimented with it. Shows a learning mindset and curiosity.",
+              "red_flag": "'I don't follow trends.' or 'Design trends are just fads.' (Shows no curiosity or adaptability.)",
+              "follow_up": "How would you experiment with that trend in your next project?"
+            },
+            {
+              "id": "E2",
+              "text": "Describe a time you had to advocate for a design decision that was unpopular. How did you handle it?",
+              "difficulty": "Medium",
+              "good": "Describes a specific situation. Explains how they presented their case and reached a compromise.",
+              "great": "Shows diplomacy and data-driven advocacy. Used user research, A/B testing, or competitor analysis to support their case. Describes the outcome and what they learned.",
+              "red_flag": "'I never advocate for unpopular decisions.' or 'I just do what the team wants.' (No backbone or leadership.)",
+              "follow_up": "What if the data supported the unpopular decision but the team still rejected it?"
+            }
+          ]
+        }
+      ]
+    },
+    "content_writer": {
+      "title": "Content Writer",
+      "department": "Marketing",
+      "level": "Junior-Mid",
+      "scoring": {
+        "exceptional": 85,
+        "strong": 70,
+        "adequate": 55,
+        "risky": 40,
+        "reject": 0
+      },
+      "sections": [
+        {
+          "id": "A",
+          "title": "Writing & Content Skills",
+          "weight": 30,
+          "questions": [
+            {
+              "id": "A1",
+              "text": "Write a 50-word social media post about AI for a startup audience. Do it now, out loud.",
+              "difficulty": "Easy",
+              "good": "Clear, engaging, appropriate tone, no errors. Conveys the message.",
+              "great": "Has a hook, includes a CTA, considers platform, uses relevant hashtags. Shows brand awareness.",
+              "red_flag": "Grammatical errors, boring tone, no understanding of the audience.",
+              "follow_up": "How would you adapt this for Twitter vs. LinkedIn?"
+            },
+            {
+              "id": "A2",
+              "text": "How do you adapt your writing tone for different audiences? Give examples.",
+              "difficulty": "Easy–Medium",
+              "good": "Mentions adjusting vocabulary, sentence length, and formality based on audience. Gives examples (e.g., technical vs. casual).",
+              "great": "Discusses audience research, personas, and brand voice guidelines. Shows versatility across formats (blog, social, email, whitepaper).",
+              "red_flag": "'I write the same way for everyone.' or 'I just write what sounds good to me.' (No audience awareness.)",
+              "follow_up": "Write the same headline for a technical audience and a non-technical audience."
+            },
+            {
+              "id": "A3",
+              "text": "How do you use AI writing tools (ChatGPT, Jasper, Grammarly) in your workflow?",
+              "difficulty": "Medium",
+              "good": "Mentions using AI for ideation, drafting, or editing. Understands the tool's limitations.",
+              "great": "Describes a hybrid workflow: AI for first drafts or research, human for tone, accuracy, and brand alignment. Discusses when AI helps and when it hurts. Shows critical thinking about AI-generated content.",
+              "red_flag": "'I don't use AI tools.' or 'I just copy-paste what ChatGPT gives me.' (Either resistant or lazy.)",
+              "follow_up": "Edit this AI-generated paragraph to make it sound more human and on-brand."
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "title": "SEO & Content Strategy",
+          "weight": 25,
+          "questions": [
+            {
+              "id": "B1",
+              "text": "How do you approach keyword research for a new blog post? What tools do you use?",
+              "difficulty": "Medium",
+              "good": "Mentions keyword research tools (Ahrefs, SEMrush, Google Keyword Planner). Considers search volume and competition.",
+              "great": "Discusses search intent (informational, transactional, navigational), SERP analysis, long-tail keywords, and content gaps. Describes a systematic process they follow.",
+              "red_flag": "'I just write about what I think is interesting.' or 'I don't do keyword research.' (No SEO awareness.)",
+              "follow_up": "What would you do if your target keyword has a high difficulty score?"
+            },
+            {
+              "id": "B2",
+              "text": "Describe a content strategy you developed or executed. What was the goal, and how did you measure success?",
+              "difficulty": "Medium–Hard",
+              "good": "Describes a content initiative with a clear goal. Mentions metrics like traffic, engagement, or leads.",
+              "great": "Connects content strategy to business outcomes (revenue, brand awareness, customer retention). Describes the full funnel: awareness → consideration → conversion. Shows data-driven thinking.",
+              "red_flag": "'I just write articles.' or 'I don't know what content strategy means.' (No strategic thinking.)",
+              "follow_up": "What would you change if you had to redo that strategy?"
+            }
+          ]
+        },
+        {
+          "id": "C",
+          "title": "Editing & Quality Control",
+          "weight": 20,
+          "questions": [
+            {
+              "id": "C1",
+              "text": "Edit this paragraph in real time: [Provide a paragraph with grammar errors, awkward phrasing, and inconsistent tone].",
+              "difficulty": "Medium",
+              "good": "Catches grammar errors and awkward phrasing. Improves clarity and flow.",
+              "great": "Fixes grammar, improves tone consistency, strengthens the message, and suggests structural improvements. Explains why they made each change.",
+              "red_flag": "Misses obvious errors. Makes the text worse. Doesn't understand tone or style.",
+              "follow_up": "How would you edit this for a C-suite audience vs. a developer audience?"
+            },
+            {
+              "id": "C2",
+              "text": "How do you ensure factual accuracy in your content, especially when writing about technical topics?",
+              "difficulty": "Medium",
+              "good": "Mentions fact-checking, citing sources, and consulting subject matter experts.",
+              "great": "Describes a verification process: cross-referencing sources, using primary sources, interviewing experts, and maintaining a source library. Discusses how they handle conflicting information.",
+              "red_flag": "'I just trust Google.' or 'I don't fact-check because I'm a writer, not a researcher.' (No accountability.)",
+              "follow_up": "What do you do when a source contradicts your previous article?"
+            }
+          ]
+        },
+        {
+          "id": "D",
+          "title": "Cultural Fit & Mindset",
+          "weight": 25,
+          "questions": [
+            {
+              "id": "D1",
+              "text": "What content creators or brands do you admire? Why?",
+              "difficulty": "Easy",
+              "good": "Mentions specific creators or brands. Explains what they admire (voice, strategy, consistency).",
+              "great": "Analyzes their content strategy, not just the output. Discusses how they would apply similar techniques to Digidelsolutions. Shows genuine enthusiasm for the craft.",
+              "red_flag": "'I don't follow any content creators.' or 'I don't read much.' (No curiosity or learning mindset.)",
+              "follow_up": "What would you write differently if you were working for that brand?"
+            },
+            {
+              "id": "D2",
+              "text": "Describe a time you received harsh feedback on your writing. How did you handle it?",
+              "difficulty": "Medium",
+              "good": "Describes a specific instance. Shows they listened and made improvements.",
+              "great": "Shows growth mindset: they sought to understand the feedback, asked clarifying questions, revised the work, and used the experience to improve future writing. Doesn't take it personally.",
+              "red_flag": "'I got defensive.' or 'I ignored it because they don't understand writing.' (Can't handle criticism.)",
+              "follow_up": "What did you learn from that feedback that you still apply today?"
+            }
+          ]
+        }
+      ]
+    },
+    "intern": {
+      "title": "Intern — Generalist",
+      "department": "Engineering",
+      "level": "Intern",
+      "scoring": {
+        "exceptional": 85,
+        "strong": 70,
+        "adequate": 55,
+        "risky": 40,
+        "reject": 0
+      },
+      "sections": [
+        {
+          "id": "A",
+          "title": "Basic Technical Skills",
+          "weight": 30,
+          "questions": [
+            {
+              "id": "A1",
+              "text": "What projects have you built outside of coursework? Walk me through the most impressive one.",
+              "difficulty": "Easy",
+              "good": "Mentions at least one project with a specific tech stack. Explains what it does and why they built it.",
+              "great": "Project solves a real problem, has users, is hosted live, has a GitHub repo with README. Shows enthusiasm. Can explain technical decisions.",
+              "red_flag": "No projects outside coursework. Only mentions 'I did a React course.' No portfolio or evidence of work.",
+              "follow_up": "What was the hardest bug you faced in that project, and how did you fix it?"
+            },
+            {
+              "id": "A2",
+              "text": "What technologies or tools are you most comfortable with? Rate yourself 1–10 on each.",
+              "difficulty": "Easy",
+              "good": "Lists specific tools. Ratings are realistic (not all 10s). Honest about weaknesses.",
+              "great": "Shows self-awareness. Explains why they rated themselves that way. Mentions what they're actively learning to improve.",
+              "red_flag": "Rates everything 10/10. Or can't name specific tools. Or 'I don't know any tools yet.'",
+              "follow_up": "What's the gap between your current skill level and where you want to be?"
+            },
+            {
+              "id": "A3",
+              "text": "[PRACTICAL EXERCISE] I will share a screen with a simple problem. Solve it out loud.",
+              "difficulty": "Easy–Medium",
+              "good": "Approaches the problem systematically. Asks clarifying questions. Makes reasonable progress.",
+              "great": "Breaks the problem down. Explains their thinking process. Not afraid to say 'I don't know' but tries to figure it out. Shows logical thinking.",
+              "red_flag": "Gives up immediately. Or doesn't ask questions. Or guesses randomly.",
+              "follow_up": "How would you verify that your solution is correct?"
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "title": "Learning Ability",
+          "weight": 25,
+          "questions": [
+            {
+              "id": "B1",
+              "text": "How do you learn a new technology or skill? Give me a specific example.",
+              "difficulty": "Easy",
+              "good": "Mentions a specific resource (documentation, tutorial, course). Describes a project they built while learning.",
+              "great": "Shows a structured learning approach: documentation → tutorials → building a project → reading source code → contributing. Describes how they overcame a specific challenge while learning.",
+              "red_flag": "'I just watch YouTube videos.' or 'I wait for someone to teach me.' (No self-directed learning.)",
+              "follow_up": "What do you do when the documentation is confusing or incomplete?"
+            },
+            {
+              "id": "B2",
+              "text": "Tell me about a time you got stuck on a problem for hours. How did you eventually solve it?",
+              "difficulty": "Easy–Medium",
+              "good": "Describes a specific problem. Mentions Stack Overflow, documentation, or asking for help.",
+              "great": "Shows persistence and problem-solving process: broke the problem down, tried different approaches, used debugging tools, asked targeted questions. Describes what they learned from the struggle.",
+              "red_flag": "'I give up and ask for help immediately.' or 'I never get stuck because I'm good at coding.' (Either lacks persistence or lacks self-awareness.)",
+              "follow_up": "What would you do differently if you faced the same problem again?"
+            }
+          ]
+        },
+        {
+          "id": "C",
+          "title": "AI Awareness",
+          "weight": 20,
+          "questions": [
+            {
+              "id": "C1",
+              "text": "How do you use AI tools (ChatGPT, Copilot, Cursor) in your learning or projects?",
+              "difficulty": "Easy",
+              "good": "Mentions using AI for code help, explanations, or debugging. Understands it's a tool, not a replacement for learning.",
+              "great": "Describes a specific workflow: uses AI to explore concepts, then implements without AI to ensure understanding. Shows critical thinking about AI-generated code. Can explain what the AI-generated code does.",
+              "red_flag": "'I don't use AI tools.' or 'I just copy-paste everything from ChatGPT.' (Either resistant or dependent.)",
+              "follow_up": "Can you explain what this AI-generated code does line by line?"
+            },
+            {
+              "id": "C2",
+              "text": "What is the difference between AI-generated code and code you write yourself? When should you use each?",
+              "difficulty": "Medium",
+              "good": "Understands AI-generated code may have errors or be generic. Knows to review and test it.",
+              "great": "Discusses the trade-off: AI for boilerplate, exploration, and documentation; human for architecture, business logic, and edge cases. Shows they understand the limitations of AI (hallucinations, bias, security risks).",
+              "red_flag": "'AI-generated code is always better.' or 'I never use AI because it's cheating.' (Extreme positions show lack of nuance.)",
+              "follow_up": "Have you ever found a bug in AI-generated code that you wouldn't have made yourself?"
+            }
+          ]
+        },
+        {
+          "id": "D",
+          "title": "Cultural Fit & Mindset",
+          "weight": 25,
+          "questions": [
+            {
+              "id": "D1",
+              "text": "Why do you want to intern at Digidelsolutions specifically? What excites you about our work?",
+              "difficulty": "Easy",
+              "good": "Mentions the company's focus, products, or mission. Shows they've done basic research.",
+              "great": "Connects their personal interests (e.g., AI, React, design) to specific projects or technologies the company uses. Shows genuine enthusiasm and a clear idea of what they want to learn.",
+              "red_flag": "'I just need an internship.' or 'I don't know much about your company.' (No effort or interest.)",
+              "follow_up": "What do you hope to have built or learned by the end of your internship?"
+            },
+            {
+              "id": "D2",
+              "text": "Describe a time you worked in a team. What was your role, and what did you learn about collaboration?",
+              "difficulty": "Easy–Medium",
+              "good": "Describes a team project. Mentions their role and how they communicated with teammates.",
+              "great": "Shows they understand team dynamics: they listened to others, resolved conflicts, shared knowledge, and adapted to feedback. Describes a specific challenge they faced as a team and how they overcame it.",
+              "red_flag": "'I prefer to work alone.' or 'My teammates slowed me down.' (Not a team player.)",
+              "follow_up": "What would you do if a team member wasn't pulling their weight?"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
